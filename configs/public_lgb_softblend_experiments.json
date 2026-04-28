@@ -1,0 +1,30 @@
+{
+  "histmix_guarded_v1_reproduce": {
+    "q2_hist_weight": 1.0,
+    "q3_hist_weight": 1.0,
+    "s4_hist_weight": 1.0,
+    "submission_file": "artifacts/submissions/submission_public_lgb_v3_public_lgb_targetwise_histmix_guarded_v1.csv",
+    "notes": "Reproduce current best target-wise hard switch: Q2/S4 public_hist411, Q3 public_hist365, others public_core."
+  },
+  "softblend_w090": {
+    "q2_hist_weight": 0.9,
+    "q3_hist_weight": 0.9,
+    "s4_hist_weight": 1.0,
+    "submission_file": "submissions/archive/softblend_initial/submission_softblend_w090.csv",
+    "notes": "Q2=0.90*hist411+0.10*core, Q3=0.90*hist365+0.10*core, S4=hist411."
+  },
+  "softblend_w085": {
+    "q2_hist_weight": 0.85,
+    "q3_hist_weight": 0.85,
+    "s4_hist_weight": 1.0,
+    "submission_file": "submissions/archive/softblend_initial/submission_softblend_w085.csv",
+    "notes": "Q2=0.85*hist411+0.15*core, Q3=0.85*hist365+0.15*core, S4=hist411."
+  },
+  "softblend_w095": {
+    "q2_hist_weight": 0.95,
+    "q3_hist_weight": 0.95,
+    "s4_hist_weight": 1.0,
+    "submission_file": "submissions/archive/softblend_initial/submission_softblend_w095.csv",
+    "notes": "Q2=0.95*hist411+0.05*core, Q3=0.95*hist365+0.05*core, S4=hist411."
+  }
+}

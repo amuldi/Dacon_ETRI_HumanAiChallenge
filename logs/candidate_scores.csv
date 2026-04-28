@@ -1,0 +1,8 @@
+rank,candidate,oof_mean,public_score,submission_file,notes
+0,00_best_guarded.csv,0.5721963000561784,0.5960566585,submissions/ready/00_best_guarded.csv,"Reference current best; keep as anchor, not a new probe."
+1,next_guarded_s2s3.csv,0.5721908206619111,,submissions/ready/next_guarded_s2s3.csv,"Next low-risk probe: keep current best Q1/Q2/Q3/S1/S4, blend only S2/S3 with tiny subject-holdout weights."
+2,01_soft_w090.csv,0.5721474375721535,0.5962890684,submissions/ready/01_soft_w090.csv,"Submitted and worse than best; stop this softblend direction."
+3,02_soft_w090_s2s3.csv,0.5721419581778863,,submissions/ready/02_soft_w090_s2s3.csv,"Demoted because it inherits failed Q2/Q3 softblend direction."
+4,03_soft_w085_s2s3.csv,0.5721339580104704,,submissions/ready/03_soft_w085_s2s3.csv,"Demoted because it moves even farther in failed softblend direction."
+5,04_soft_w085.csv,0.5721394374047376,,submissions/ready/04_soft_w085.csv,"Do not submit for now; likely same failure direction as w090."
+6,05_soft_w095.csv,0.5721663642243604,,submissions/ready/05_soft_w095.csv,"Lower-risk than w085 but still same failed softblend family."

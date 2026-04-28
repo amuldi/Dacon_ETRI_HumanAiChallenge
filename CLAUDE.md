@@ -1,0 +1,1 @@
+https://dacon.io/competitions/official/236690/overview/description 이 주소에 있는 대회에서 우승할수 있는 최고의 전략을 짤 것

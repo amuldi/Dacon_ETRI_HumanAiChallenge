@@ -1,0 +1,12 @@
+.vendor/
+data/
+__pycache__/
+*.pyc
+.DS_Store
+artifacts/
+reports/contracts/
+reports/features/
+reports/folds/
+reports/oof/
+reports/experiments/
+reports/models/

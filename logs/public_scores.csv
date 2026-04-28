@@ -1,0 +1,4 @@
+timestamp,submission_file,experiment_name,public_score,delta_vs_best,notes
+2026-04-25,submission_public_lgb_v3_public_lgb_targetwise_histmix_guarded_v1.csv,histmix_guarded_v1,0.5960566585,0.0000000000,Current best. Keep as anchor.
+2026-04-28 00:49:31,submission_public_lgb_v4_softblend_w090.csv,softblend_w090,0.5962890684,0.0002324099,Worse than current best; stop softblend direction.
+2026-04-28 00:38:26,submission_public_lgb_v5_public_lgb_targetwise_histmix_guarded_v1_subject_holdout.csv,histmix_guarded_v1_subject_holdout,0.5968333841,0.0007767256,Worse than current best; do not promote.
