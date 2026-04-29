@@ -1,4 +1,4 @@
-# ETRI Human Understanding Challenge Workspace
+# 제 5회 ETRI 휴먼이해 인공지능 논문경진대회
 
 ## 프로젝트 개요
 
