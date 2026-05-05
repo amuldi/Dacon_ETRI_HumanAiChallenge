@@ -1,58 +1,61 @@
 # Project Structure
 
-사람이 자주 보는 위치와 파이프라인 내부 산출물을 분리해서 보면 됩니다.
+자주 보는 위치만 먼저 보면 됩니다. DACON 업로드 후보는 `submissions/ready/`만 기준으로 합니다.
 
 ## Quick View
 
 ```text
 .
-  submissions/            # 사람이 제출 파일을 고르는 곳
-  logs/                   # public score와 후보 우선순위
-  EXPERIMENT_LOG.md       # 실험 흐름 요약
-  scripts/                # 실행 스크립트
-  src/                    # Python 패키지 코드
-  artifacts/              # 학습/예측 원본 산출물, 가급적 직접 수정하지 않음
-  reports/                # 자동 생성 리포트
-  data/                   # 원본/제공 데이터
-  configs/                # 실험 설정
+  submissions/            # 제출 CSV 관리
+  logs/                   # public score, 후보 순위, 실험 로그
+  reports/submissions/    # 제출 후보별 상세 리포트
+  scripts/                # 재현/학습/후보 생성 스크립트
+  src/                    # 재사용 Python 패키지 코드
+  artifacts/              # OOF/test prediction/model 산출물
+  data/                   # 대회 제공 데이터
   docs/directives/        # 구현 지시서와 진단 문서
 ```
 
-## Submission Area
+## Submission Folder
 
 ```text
 submissions/
   README.md
   ready/
-    00_best_guarded.csv        # 현재 best 복사본
-    next_guarded_s2s3.csv      # 다음 제출 후보
-    01_soft_w090.csv           # 제출 완료, public 악화
-    02_soft_w090_s2s3.csv      # 보류
-    03_soft_w085_s2s3.csv      # 보류
-    04_soft_w085.csv           # 보류
-    05_soft_w095.csv           # 보류
+    lgb_temporal_s4b650.csv          # current best, public 0.5829008297
+    lgb_temporal_s4b130.csv          # backup, public 0.5845552904
   archive/
-    softblend_initial/         # 초기에 생성한 긴 이름 softblend 파일
-```
-
-현재 제출할 파일:
-
-```text
-submissions/ready/next_guarded_s2s3.csv
+    2026-05-05_s4_extension_failed/  # S4 추가 연장 실패/차단
+    2026-05-05_qshead_failed/        # Q/S recovery 실패/차단
+    2026-05-05_s4_direction_failed/  # S4 down-only 진단 실패
+    2026-05-05_xgb_guard_blocked/    # XGB guarded blend 차단
+    2026-05-04_after_s4up650_failed/ # S4 up-only 및 고위험 ladder
+    2026-05-03_after_s4b110/         # 이전 temporal/S4 중간 후보
+    2026-05-02_push_failed/          # temporal push 실패
+    2026-05-01_after_temporal_prior/ # 이전 calibration/temporal 후보
+    2026-04-29_cleanup/              # 과거 softblend/guarded 후보
 ```
 
 ## Score Logs
 
 ```text
 logs/
-  public_scores.csv            # 실제 public 점수 기록
-  candidate_scores.csv         # 후보별 OOF/public/판단
-  experiments.csv              # 자동 실험 로그
-  stability/                   # seed/fold 안정성 상세
+  public_scores.csv       # 실제 DACON public 점수
+  candidate_scores.csv    # 현재 후보 우선순위와 차단 기록
+  experiments.csv         # 자동 실험 로그
+  stability/              # seed/fold 안정성 상세
 ```
 
-## Source Of Truth
+## Current Best
 
-- 실제 public best는 `logs/public_scores.csv` 기준으로 판단합니다.
-- 제출 후보 우선순위는 `logs/candidate_scores.csv`와 `submissions/README.md` 기준으로 판단합니다.
-- `artifacts/`는 모델/OOF/test prediction 원본 보관소입니다. 제출할 때 직접 고르지 않습니다.
+| File | Public | OOF | Notes |
+|---|---:|---:|---|
+| `submissions/ready/lgb_temporal_s4b650.csv` | `0.5829008297` | `0.565296` | current best |
+| `submissions/ready/lgb_temporal_s4b130.csv` | `0.5845552904` | `0.559702` | backup |
+
+## Rules
+
+- DACON 업로드 후보는 `submissions/ready/`만 사용합니다.
+- 실패한 제출 CSV는 `submissions/archive/`에 보존하고 재제출하지 않습니다.
+- `artifacts/`, `logs/`, `reports/`, `scripts/`는 재현과 분석에 필요하므로 정리 대상에서 제외합니다.
+- 2026-05-06 새 CSV는 guard를 통과할 때만 생성합니다. 통과 후보가 없으면 제출하지 않습니다.

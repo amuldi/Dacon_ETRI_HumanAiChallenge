@@ -2,3 +2,23 @@ timestamp,submission_file,experiment_name,public_score,delta_vs_best,notes
 2026-04-25,submission_public_lgb_v3_public_lgb_targetwise_histmix_guarded_v1.csv,histmix_guarded_v1,0.5960566585,0.0000000000,Current best. Keep as anchor.
 2026-04-28 00:49:31,submission_public_lgb_v4_softblend_w090.csv,softblend_w090,0.5962890684,0.0002324099,Worse than current best; stop softblend direction.
 2026-04-28 00:38:26,submission_public_lgb_v5_public_lgb_targetwise_histmix_guarded_v1_subject_holdout.csv,histmix_guarded_v1_subject_holdout,0.5968333841,0.0007767256,Worse than current best; do not promote.
+2026-04-29 00:17:30,next_guarded_s2s3.csv,guarded_s2s3,0.5960906414,0.0000339829,Worse than current best; stop S2/S3 subject-holdout blend direction.
+2026-04-29 00:57:34,next_stable_tuned.csv,guarded_v2_stable_tuned,0.5956332255,-0.0004234330,New current best; stable feature subset + target-specific LGB params.
+2026-04-29 01:25:54,lgb_stable_calibrated.csv,calibrated_v1,0.5946792872,-0.0009539383,New current best; per-target logit calibration on stable_tuned.
+2026-04-30 00:18:24,lgb_calib_tight.csv,calib_tight_v1,0.5944158654,-0.0002634218,New current best; tighter calibration on Q3/S1/S2 only.
+2026-04-30 12:02:34,lgb_calib_micro.csv,calib_micro_v1,0.5947643318,0.0003484664,Worse than current best; S3/S4 micro calibration likely overfit public.
+2026-04-30 13:28:36,lgb_q3s1s2_boost.csv,q3s1s2_boost_v1,0.5944366954,0.0000208300,Worse than current best; stop calibration extension direction.
+2026-05-01,lgb_s4_top50.csv,s4_top50_v1,0.5970623278,0.0026464624,Worse than current best; S4 importance-top50 OOF gain overfit public badly.
+2026-05-01 00:54:31,lgb_57_antis4_probe.csv,public_feedback_v1_57_antis4_probe,0.5943866101,-0.0000292553,New current best; small anti-S4 move opposite failed S4 top50 direction.
+2026-05-01,lgb_temporal_prior.csv,temporal_prior_v1,0.5886545849,-0.0057320252,New current best; bidirectional same-subject temporal label prior produced 5.8 range.
+2026-05-02,lgb_temporal_targetwise.csv,temporal_targetwise_v1_public,0.5863944910,-0.0022600939,New current best; target-wise temporal prior with S4 frozen improved public.
+2026-05-02,lgb_temporal_push.csv,temporal_push_v1,0.5880629390,0.0016684480,Worse than current best; stop over-pushing temporal direction.
+2026-05-02,lgb_temporal_s4half.csv,temporal_s4_recovery_v1,0.5856099175,-0.0007845735,New current best; S4-only half temporal step improved public.
+2026-05-03,lgb_temporal_s4b065.csv,temporal_s4_beta_v1_b065,0.5853942690,-0.0002156485,New current best; S4 beta 0.65 continuation improved public.
+2026-05-03,lgb_temporal_s4b085.csv,temporal_s4_beta_v1_b085,0.5851199626,-0.0002743064,New current best; S4 beta 0.85 continuation improved public.
+2026-05-03 00:18:35,lgb_temporal_s4b110.csv,temporal_s4_beta_v1_b110,0.5847975097,-0.0003224529,New current best; S4 beta 1.10 beyond-full continuation improved public.
+2026-05-04,lgb_temporal_s4b130.csv,today_s4_extension_20260504_b130,0.5845552904,-0.0002422193,New current best; beta 1.30 confirms the S4-only extension trend.
+2026-05-04,lgb_temporal_s4b650.csv,toward_57_s4_ladder_20260504_b650,0.5829008297,-0.0016544607,"New current best, but S4-only gain flattened; switch to directional and non-S4 probes."
+2026-05-05,submit_s4down650_fixed.csv,post_b650_strategy_20260504_s4down650,0.5838666368,0.0009658071,Worse than current best; stop S4 directional probes and switch to Q/S recovery.
+2026-05-05,submit_qshead160_s4b650.csv,qs_recovery_20260505_qshead160_s4b650,0.5837781861,0.0008773564,"Worse than current best; Q/S head push failed, stop remaining Q/S recovery candidates."
+2026-05-05,submit_s4sym800_s4b650.csv,s4_public_anchored_20260505_submit_s4sym800_s4b650,0.5845567721,0.0016559424,"Worse than current best; stop S4 extension and remove near950/sym950 candidates."

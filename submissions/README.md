@@ -1,49 +1,52 @@
 # Submissions
 
-제출할 파일은 기본적으로 `submissions/ready/`만 보면 됩니다.  
-`artifacts/submissions/`는 파이프라인 원본 산출물 보관용이고, DACON에 올릴 때는 여기의 짧은 파일명을 사용합니다.
+DACON 업로드 후보는 `submissions/ready/`만 확인합니다.
 
-## Folder Tree
+## Current Best
 
-```text
-submissions/
-  README.md
-  ready/
-    00_best_guarded.csv
-    next_guarded_s2s3.csv
-    01_soft_w090.csv
-    02_soft_w090_s2s3.csv
-    03_soft_w085_s2s3.csv
-    04_soft_w085.csv
-    05_soft_w095.csv
-  archive/
-    softblend_initial/
-      submission_softblend_w085.csv
-      submission_softblend_w090.csv
-      submission_softblend_w095.csv
-```
+- Public best: `0.5829008297`
+- Best file: `submissions/ready/lgb_temporal_s4b650.csv`
+- Backup file: `submissions/ready/lgb_temporal_s4b130.csv`
 
-## What To Submit
+## Ready Files
 
-| Priority | File | Status | Public | OOF | Decision |
-|---:|---|---|---:|---:|---|
-| 0 | `ready/00_best_guarded.csv` | current best copy | 0.5960566585 | 0.572196 | 기준 파일 |
-| 1 | `ready/next_guarded_s2s3.csv` | next candidate |  | 0.572191 | 다음 제출 |
-| 2 | `ready/01_soft_w090.csv` | submitted | 0.5962890684 | 0.572147 | 실패, 중단 |
-| 3 | `ready/02_soft_w090_s2s3.csv` | demoted |  | 0.572142 | softblend 실패 방향 포함 |
-| 4 | `ready/03_soft_w085_s2s3.csv` | demoted |  | 0.572134 | softblend 실패 방향 포함 |
-| 5 | `ready/04_soft_w085.csv` | hold |  | 0.572139 | 제출 보류 |
-| 6 | `ready/05_soft_w095.csv` | hold |  | 0.572166 | 제출 보류 |
+| Role | File | OOF mean | Public | Decision |
+|---|---|---:|---:|---|
+| current best | `ready/lgb_temporal_s4b650.csv` | `0.565296` | `0.5829008297` | 업로드 기준 파일 |
+| backup | `ready/lgb_temporal_s4b130.csv` | `0.559702` | `0.5845552904` | 백업 보관 |
 
-## Current Recommendation
+## Stop Rule
 
-```text
-submit: submissions/ready/next_guarded_s2s3.csv
-stop if public score is not below 0.5960566585
-```
+현재 후처리 축은 모두 중단합니다.
 
-## Naming
+- S4 beta 추가 연장 금지
+- S4 up/down 분해 금지
+- Q/S head push, qsmicro, qscal 금지
+- XGB guard003/005 재사용 금지
+- OOF만 좋아지는 후처리 후보 금지
 
-- `best_guarded`: 현재 public best인 hard-switch target map.
-- `guarded_s2s3`: 현재 best를 유지하고 S2/S3만 subject-holdout 예측을 아주 작게 섞은 후보.
-- `soft_w090`, `soft_w085`, `soft_w095`: Q2/Q3를 core 쪽으로 softblend한 이전 후보. `soft_w090` public 실패 후 우선순위에서 내림.
+## Archived Evidence
+
+실패 또는 차단된 CSV는 archive에 보존합니다.
+
+| Axis | Archive path | Evidence |
+|---|---|---|
+| S4 extension | `archive/2026-05-05_s4_extension_failed/submit_s4sym800_s4b650.csv` | public `0.5845567721` |
+| S4 extension blocked | `archive/2026-05-05_s4_extension_failed/submit_s4near950_s4b650.csv` | `sym800` 실패로 차단 |
+| S4 extension blocked | `archive/2026-05-05_s4_extension_failed/submit_s4sym950_s4b650.csv` | `sym800` 실패로 차단 |
+| Q/S push | `archive/2026-05-05_qshead_failed/submit_qshead160_s4b650.csv` | public `0.5837781861` |
+| S4 direction | `archive/2026-05-05_s4_direction_failed/submit_s4down650_fixed.csv` | public `0.5838666368` |
+| XGB guarded blend | `archive/2026-05-05_xgb_guard_blocked/submit_xgb_guard003_s4b650.csv` | selected weights all `0` |
+| XGB guarded blend | `archive/2026-05-05_xgb_guard_blocked/submit_xgb_guard005_s4b650.csv` | selected weights all `0` |
+
+## 2026-05-06 Guard Policy
+
+새 CSV는 아래 조건을 모두 통과할 때만 `ready/`에 둡니다.
+
+1. 기존 실패 축과 같은 조작이 아닐 것.
+2. 최소 2개 이상 non-S4 타깃에서 target OOF가 개선될 것.
+3. 어떤 타깃도 current 대비 OOF 손실이 `0.00005`를 넘지 않을 것.
+4. test prediction 평균 drift가 target별 `0.005` 이하일 것.
+5. 후보가 weight report를 만들면, 선택된 blend/model weight가 전부 `0`이 아닐 것.
+
+Guard를 통과한 후보가 없으면 “제출 없음”이 정답입니다.

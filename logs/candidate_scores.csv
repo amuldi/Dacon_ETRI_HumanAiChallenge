@@ -1,8 +1,9 @@
 rank,candidate,oof_mean,public_score,submission_file,notes
-0,00_best_guarded.csv,0.5721963000561784,0.5960566585,submissions/ready/00_best_guarded.csv,"Reference current best; keep as anchor, not a new probe."
-1,next_guarded_s2s3.csv,0.5721908206619111,,submissions/ready/next_guarded_s2s3.csv,"Next low-risk probe: keep current best Q1/Q2/Q3/S1/S4, blend only S2/S3 with tiny subject-holdout weights."
-2,01_soft_w090.csv,0.5721474375721535,0.5962890684,submissions/ready/01_soft_w090.csv,"Submitted and worse than best; stop this softblend direction."
-3,02_soft_w090_s2s3.csv,0.5721419581778863,,submissions/ready/02_soft_w090_s2s3.csv,"Demoted because it inherits failed Q2/Q3 softblend direction."
-4,03_soft_w085_s2s3.csv,0.5721339580104704,,submissions/ready/03_soft_w085_s2s3.csv,"Demoted because it moves even farther in failed softblend direction."
-5,04_soft_w085.csv,0.5721394374047376,,submissions/ready/04_soft_w085.csv,"Do not submit for now; likely same failure direction as w090."
-6,05_soft_w095.csv,0.5721663642243604,,submissions/ready/05_soft_w095.csv,"Lower-risk than w085 but still same failed softblend family."
+0,lgb_temporal_s4b650.csv,0.5652961542103195,0.5829008297,submissions/ready/lgb_temporal_s4b650.csv,Current public best and only approved upload candidate.
+1,lgb_temporal_s4b130.csv,0.5597017230477448,0.5845552904,submissions/ready/lgb_temporal_s4b130.csv,Backup only; lower priority than current best.
+2,submit_s4sym800_s4b650.csv,0.5697179367783727,0.5845567721,submissions/archive/2026-05-05_s4_extension_failed/submit_s4sym800_s4b650.csv,Archived evidence; S4 extension failed public.
+3,submit_s4near950_s4b650.csv,0.5746136578159157,,submissions/archive/2026-05-05_s4_extension_failed/submit_s4near950_s4b650.csv,Blocked because sym800 failed; do not upload.
+4,submit_s4sym950_s4b650.csv,0.5746546620920518,,submissions/archive/2026-05-05_s4_extension_failed/submit_s4sym950_s4b650.csv,Blocked because sym800 failed; do not upload.
+5,submit_xgb_guard003_s4b650.csv,0.5652961542103195,,submissions/archive/2026-05-05_xgb_guard_blocked/submit_xgb_guard003_s4b650.csv,Blocked: XGB selected no non-zero guarded weights; do not upload.
+6,submit_xgb_guard005_s4b650.csv,0.5652961542103195,,submissions/archive/2026-05-05_xgb_guard_blocked/submit_xgb_guard005_s4b650.csv,Blocked: XGB selected no non-zero guarded weights; do not upload.
+7,submit_qshead160_s4b650.csv,0.5650630985997749,0.5837781861,submissions/archive/2026-05-05_qshead_failed/submit_qshead160_s4b650.csv,Failed public; do not submit Q/S recovery siblings.

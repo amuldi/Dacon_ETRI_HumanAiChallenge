@@ -20,13 +20,15 @@ import numpy as np
 import pandas as pd
 import lightgbm as lgb
 from sklearn.metrics import log_loss
+from sklearn.model_selection import StratifiedKFold
 
 from etri_human_challenge.constants import TARGET_COLUMNS
 from etri_human_challenge.paths import FEATURES_DIR, REPORT_FEATURES_DIR, ensure_runtime_dirs
-from etri_human_challenge.proper_cv import subject_stratified_holdout_iter
+from etri_human_challenge.lgb_target_params import TARGET_LGB_PARAMS
 from etri_human_challenge.public_lgb import (
     load_public_lgb_feature_table,
     get_public_lgb_feature_columns,
+    PUBLIC_LGB_DEFAULT_SEEDS,
     PUBLIC_LGB_PARAMS,
 )
 from etri_human_challenge.utils import clip_probabilities, write_markdown
@@ -44,10 +46,14 @@ TARGET_VIEW = {
 }
 
 # 중요도 수집에 사용할 seed 수
-STABILITY_SEEDS = [42, 1234, 9999, 7, 314]
+STABILITY_SEEDS = PUBLIC_LGB_DEFAULT_SEEDS
 
 # 비교할 Top-K 후보
-TOP_K_CANDIDATES = [50, 100, 150, 200, 300, "all"]
+TOP_K_BY_VIEW = {
+    "public_core": [300, 400, 500, "all"],
+    "public_hist365": [250, 300, 365, "all"],
+    "public_hist411": [250, 300, 350, 411, "all"],
+}
 
 # 안정성 기준: seed 간 CV (std/mean) ≤ 이 값인 피처를 '안정적'으로 판단
 CV_THRESHOLD = 1.5
@@ -57,6 +63,7 @@ def collect_importances(
     X: pd.DataFrame,
     y: np.ndarray,
     train_frame: pd.DataFrame,
+    target: str,
     seeds: list[int],
     n_folds: int = 5,
 ) -> pd.DataFrame:
@@ -71,11 +78,10 @@ def collect_importances(
         fold_imp = pd.Series(0.0, index=X.columns, dtype=float)
         n_folds_actual = 0
 
-        for tr_idx, va_idx in subject_stratified_holdout_iter(
-            train_frame, n_folds=n_folds, random_state=seed
-        ):
+        splitter = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
+        for tr_idx, va_idx in splitter.split(X, y):
             params = {
-                **PUBLIC_LGB_PARAMS,
+                **TARGET_LGB_PARAMS.get(target, PUBLIC_LGB_PARAMS),
                 "random_state": seed,
                 "n_estimators": 1000,
             }
@@ -128,6 +134,7 @@ def evaluate_feature_subset(
     y: np.ndarray,
     train_frame: pd.DataFrame,
     feature_subset: list[str],
+    target: str,
     *,
     seed: int = 42,
     n_folds: int = 5,
@@ -135,11 +142,10 @@ def evaluate_feature_subset(
     """주어진 피처 subset으로 OOF log-loss 계산 (단일 seed)."""
     oof = np.zeros(len(y), dtype=float)
 
-    for tr_idx, va_idx in subject_stratified_holdout_iter(
-        train_frame, n_folds=n_folds, random_state=seed
-    ):
+    splitter = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
+    for tr_idx, va_idx in splitter.split(X_full[feature_subset], y):
         model = lgb.LGBMClassifier(
-            **{**PUBLIC_LGB_PARAMS, "random_state": seed, "n_estimators": 1000}
+            **{**TARGET_LGB_PARAMS.get(target, PUBLIC_LGB_PARAMS), "random_state": seed, "n_estimators": 1000}
         )
         model.fit(
             X_full[feature_subset].iloc[tr_idx],
@@ -172,7 +178,7 @@ def main() -> None:
         y = train[target].astype(int).values
 
         print(f"\n[{target}] ({view}, {len(feat_cols)}개 피처) 중요도 수집 중 ...")
-        imp_df = collect_importances(X, y, train, STABILITY_SEEDS)
+        imp_df = collect_importances(X, y, train, target, STABILITY_SEEDS)
 
         # 저장
         imp_path = FEATURES_DIR / f"feat_importance_{target}_{view}.parquet"
@@ -187,10 +193,10 @@ def main() -> None:
 
         # Top-K별 OOF 비교
         k_results: list[dict] = []
-        for k in TOP_K_CANDIDATES:
+        for k in TOP_K_BY_VIEW[view]:
             top_k_int = None if k == "all" else int(k)
             subset = select_stable_features(imp_df, top_k_int)
-            ll = evaluate_feature_subset(X, y, train, subset, seed=42)
+            ll = evaluate_feature_subset(X, y, train, subset, target, seed=42)
             print(f"  top-{str(k):5s}: {len(subset):4d}개  OOF={ll:.6f}")
             k_results.append({"k": k, "n": len(subset), "oof": ll})
 

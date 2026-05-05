@@ -550,6 +550,7 @@ def _train_public_lgb_with_target_views(
     *,
     run_name: str,
     target_feature_views: dict[str, str],
+    target_feature_subsets: dict[str, list[str]] | None = None,
     n_folds: int = 5,
     seeds: list[int] | None = None,
     rebuild_features: bool = False,
@@ -570,12 +571,19 @@ def _train_public_lgb_with_target_views(
     feature_cols_by_view = {
         feature_view: get_public_lgb_feature_columns(frame, feature_view=feature_view) for feature_view in distinct_views
     }
-    train_payload_by_view = {
-        feature_view: train[feature_cols].copy() for feature_view, feature_cols in feature_cols_by_view.items()
-    }
-    test_payload_by_view = {
-        feature_view: test[feature_cols].copy() for feature_view, feature_cols in feature_cols_by_view.items()
-    }
+    target_feature_subsets = target_feature_subsets or {}
+    feature_cols_by_target: dict[str, list[str]] = {}
+    for target in TARGET_COLUMNS:
+        feature_view = target_feature_views[target]
+        base_cols = feature_cols_by_view[feature_view]
+        if target in target_feature_subsets:
+            requested = list(dict.fromkeys(target_feature_subsets[target]))
+            missing = sorted(set(requested) - set(base_cols))
+            if missing:
+                raise ValueError(f"{target} subset contains columns outside {feature_view}: {missing[:10]}")
+            feature_cols_by_target[target] = [col for col in base_cols if col in set(requested)]
+        else:
+            feature_cols_by_target[target] = base_cols
 
     oof_preds = np.zeros((len(train), len(TARGET_COLUMNS)), dtype=float)
     test_preds = np.zeros((len(test), len(TARGET_COLUMNS)), dtype=float)
@@ -583,8 +591,9 @@ def _train_public_lgb_with_target_views(
 
     for target_idx, target in enumerate(TARGET_COLUMNS):
         feature_view = target_feature_views[target]
-        X_train = train_payload_by_view[feature_view]
-        X_test = test_payload_by_view[feature_view]
+        feature_cols = feature_cols_by_target[target]
+        X_train = train[feature_cols].copy()
+        X_test = test[feature_cols].copy()
         y = train[target].astype(int).to_numpy()
         target_oof = np.zeros(len(train), dtype=float)
         target_test = np.zeros(len(test), dtype=float)
@@ -629,10 +638,13 @@ def _train_public_lgb_with_target_views(
     oof_frame = pd.DataFrame(oof_preds, columns=TARGET_COLUMNS)
     score_payload = multi_target_log_loss(train[TARGET_COLUMNS], oof_frame, TARGET_COLUMNS)
     feature_counts_by_view = {feature_view: len(cols) for feature_view, cols in feature_cols_by_view.items()}
+    feature_counts_by_target = {target: len(cols) for target, cols in feature_cols_by_target.items()}
     result = {
         "name": run_name,
         "target_feature_views": target_feature_views,
         "n_features_by_view": feature_counts_by_view,
+        "n_features_by_target": feature_counts_by_target,
+        "target_feature_subsets": target_feature_subsets,
         "n_train_rows": len(train),
         "n_test_rows": len(test),
         "n_folds": int(n_folds),
@@ -677,6 +689,9 @@ def _train_public_lgb_with_target_views(
     report_lines.extend(["", "## Feature Counts By View", ""])
     for feature_view in distinct_views:
         report_lines.append(f"- `{feature_view}`: {feature_counts_by_view[feature_view]}")
+    report_lines.extend(["", "## Feature Counts By Target", ""])
+    for target in TARGET_COLUMNS:
+        report_lines.append(f"- `{target}`: {feature_counts_by_target[target]}")
     report_lines.extend(["", "## Target Scores", ""])
     for target in TARGET_COLUMNS:
         report_lines.append(f"- `{target}`: {score_payload[target]:.6f}")
@@ -691,8 +706,12 @@ def _train_public_lgb_with_target_views(
             "n_features": result.get("n_features"),
             "target_feature_views": target_feature_views,
             "n_features_by_view": feature_counts_by_view,
+            "n_features_by_target": feature_counts_by_target,
+            "target_feature_subsets": target_feature_subsets,
             "seeds": seed_list,
             "n_folds": int(n_folds),
+            "cv_scheme": cv_scheme,
+            "use_target_params": bool(use_target_params),
             "scores": score_payload,
         },
     )
@@ -731,6 +750,7 @@ def train_public_lgb_targetwise(
     *,
     preset_name: str,
     default_feature_view: str = "public_core",
+    target_feature_subsets: dict[str, list[str]] | None = None,
     n_folds: int = 5,
     seeds: list[int] | None = None,
     rebuild_features: bool = False,
@@ -744,6 +764,7 @@ def train_public_lgb_targetwise(
             default_feature_view=default_feature_view,
             preset_name=preset_name,
         ),
+        target_feature_subsets=target_feature_subsets,
         n_folds=n_folds,
         seeds=seeds,
         rebuild_features=rebuild_features,
@@ -815,6 +836,7 @@ def make_public_lgb_targetwise_submission(
     tag: str = "public_lgb_v3",
     preset_name: str,
     default_feature_view: str = "public_core",
+    target_feature_subsets: dict[str, list[str]] | None = None,
     n_folds: int = 5,
     seeds: list[int] | None = None,
     rebuild_features: bool = False,
@@ -832,6 +854,7 @@ def make_public_lgb_targetwise_submission(
         default_feature_view=default_feature_view,
         preset_name=preset_name,
     )
+    target_feature_subsets = target_feature_subsets or {}
     can_reuse_cache = False
     if cached_test_path.exists() and cached_summary_path.exists() and not rebuild_features:
         cached_result = json.loads(cached_summary_path.read_text())
@@ -840,6 +863,9 @@ def make_public_lgb_targetwise_submission(
             and int(cached_result.get("n_folds", -1)) == int(n_folds)
             and [int(seed) for seed in cached_result.get("seeds", [])] == requested_seeds
             and cached_result.get("target_feature_views") == target_feature_views
+            and cached_result.get("target_feature_subsets", {}) == target_feature_subsets
+            and cached_result.get("cv_scheme", "public_stratified") == cv_scheme
+            and bool(cached_result.get("use_target_params", False)) == bool(use_target_params)
         )
     if can_reuse_cache:
         result = cached_result
@@ -848,6 +874,7 @@ def make_public_lgb_targetwise_submission(
         result = train_public_lgb_targetwise(
             preset_name=preset_name,
             default_feature_view=default_feature_view,
+            target_feature_subsets=target_feature_subsets,
             n_folds=n_folds,
             seeds=requested_seeds,
             rebuild_features=rebuild_features,
