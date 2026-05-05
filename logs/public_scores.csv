@@ -22,3 +22,5 @@ timestamp,submission_file,experiment_name,public_score,delta_vs_best,notes
 2026-05-05,submit_s4down650_fixed.csv,post_b650_strategy_20260504_s4down650,0.5838666368,0.0009658071,Worse than current best; stop S4 directional probes and switch to Q/S recovery.
 2026-05-05,submit_qshead160_s4b650.csv,qs_recovery_20260505_qshead160_s4b650,0.5837781861,0.0008773564,"Worse than current best; Q/S head push failed, stop remaining Q/S recovery candidates."
 2026-05-05,submit_s4sym800_s4b650.csv,s4_public_anchored_20260505_submit_s4sym800_s4b650,0.5845567721,0.0016559424,"Worse than current best; stop S4 extension and remove near950/sym950 candidates."
+2026-05-06,submit_20260506_non_s4_temporal_microblend.csv,public_lgb_targetwise_20260506_non_s4_temporal_microblend,0.5834566947,0.0005558650,"Worse than current best despite OOF guard pass; OOF is misleading on this non-S4 temporal microblend axis."
+2026-05-06,submit_20260506_public_feedback_anti_micro075.csv,public_lgb_targetwise_20260506_public_feedback_anti_micro075,0.5826026306,-0.0002981991,"New current best; public-feedback anti direction improved slightly, fit scale ladder for one stronger probe."

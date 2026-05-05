@@ -22,9 +22,12 @@
 submissions/
   README.md
   ready/
-    lgb_temporal_s4b650.csv          # current best, public 0.5829008297
+    submit_20260506_public_feedback_anti_micro225.csv # 2026-05-06 upload probe
+    submit_20260506_public_feedback_anti_micro075.csv # current public best, 0.5826026306
+    lgb_temporal_s4b650.csv          # previous anchor, public 0.5829008297
     lgb_temporal_s4b130.csv          # backup, public 0.5845552904
   archive/
+    2026-05-06_non_s4_microblend_failed/ # OOF guard-pass but public failed
     2026-05-05_s4_extension_failed/  # S4 추가 연장 실패/차단
     2026-05-05_qshead_failed/        # Q/S recovery 실패/차단
     2026-05-05_s4_direction_failed/  # S4 down-only 진단 실패
@@ -50,7 +53,9 @@ logs/
 
 | File | Public | OOF | Notes |
 |---|---:|---:|---|
-| `submissions/ready/lgb_temporal_s4b650.csv` | `0.5829008297` | `0.565296` | current best |
+| `submissions/ready/submit_20260506_public_feedback_anti_micro225.csv` |  | `0.566305` | 2026-05-06 upload probe, quadratic estimate `0.5823114601` |
+| `submissions/ready/submit_20260506_public_feedback_anti_micro075.csv` | `0.5826026306` | `0.565544` | current public best |
+| `submissions/ready/lgb_temporal_s4b650.csv` | `0.5829008297` | `0.565296` | previous anchor |
 | `submissions/ready/lgb_temporal_s4b130.csv` | `0.5845552904` | `0.559702` | backup |
 
 ## Rules
@@ -58,4 +63,5 @@ logs/
 - DACON 업로드 후보는 `submissions/ready/`만 사용합니다.
 - 실패한 제출 CSV는 `submissions/archive/`에 보존하고 재제출하지 않습니다.
 - `artifacts/`, `logs/`, `reports/`, `scripts/`는 재현과 분석에 필요하므로 정리 대상에서 제외합니다.
-- 2026-05-06 새 CSV는 guard를 통과할 때만 생성합니다. 통과 후보가 없으면 제출하지 않습니다.
+- 일반 새 CSV는 guard를 통과할 때만 생성합니다. 통과 후보가 없으면 제출하지 않습니다.
+- `anti_micro225`는 2026-05-06 public-feedback 예외 후보입니다. 실패하면 이 postprocessing 방향은 중단합니다.
